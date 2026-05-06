@@ -1,9 +1,11 @@
+import API_BASE_URL from '../../config';
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { clearCart } from '../../redux/cartSlice';
 import { resolveImageUrl } from '../../components/home/ProductCard';
 import { MapPin, ShoppingBag, CreditCard, CheckCircle, ChevronRight, User, Phone, Mail, Building, ArrowLeft, Search, Loader2 } from 'lucide-react';
+import { indiaData } from '../../utils/indiaData';
 import './checkout.css';
 
 const Checkout = () => {
@@ -20,6 +22,7 @@ const Checkout = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [error, setError] = useState('');
 
   const [addressData, setAddressData] = useState({
     fullName: userData?.name || '',
@@ -62,17 +65,21 @@ const Checkout = () => {
   }, []);
 
   const fetchSuggestions = async (text) => {
-    if (!GEOAPIFY_KEY) return;
+    if (!GEOAPIFY_KEY) {
+      console.warn("Geoapify API key is missing. Address autocomplete will not work.");
+      return;
+    }
     setIsLoading(true);
     try {
       const response = await fetch(
         `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(text)}&filter=countrycode:in&limit=5&apiKey=${GEOAPIFY_KEY}`
       );
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
       setSuggestions(data.features || []);
       setShowDropdown(true);
     } catch (error) {
-      console.error("Geoapify Error", error);
+      console.error("Geoapify Autocomplete Error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -98,33 +105,90 @@ const Checkout = () => {
   };
 
   const handleLocateMe = () => {
+    setError('');
+    if (!GEOAPIFY_KEY) {
+      setError("Location services are not configured. (Missing API Key)");
+      return;
+    }
+
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(async (pos) => {
         const { latitude, longitude } = pos.coords;
         try {
           const res = await fetch(`https://api.geoapify.com/v1/geocode/reverse?lat=${latitude}&lon=${longitude}&apiKey=${GEOAPIFY_KEY}`);
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
           const data = await res.json();
-          if (data.features?.length > 0) selectSuggestion(data.features[0]);
+          if (data.features?.length > 0) {
+            selectSuggestion(data.features[0]);
+          } else {
+            setError("Could not find address for your current location.");
+          }
         } catch (err) {
           console.error("Reverse geocode error", err);
+          setError("Failed to fetch address from coordinates.");
         }
+      }, (err) => {
+        console.error("Geolocation error", err);
+        setError("Please enable location permissions in your browser.");
       });
+    } else {
+      setError("Geolocation is not supported by your browser.");
     }
   };
+
+  const [shippingData, setShippingData] = useState({ charge: 0, days: '', zone: '', billableWeight: 0, loading: false });
+
+  // Fetch Shipping Charge
+  const fetchShippingCharge = async (zip, state, city) => {
+    if (!city) return;
+    
+    setShippingData(prev => ({ ...prev, loading: true }));
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/calculate-shipping`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items, pincode: zip, state, city })
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setShippingData({ ...data, loading: false });
+      }
+    } catch (err) {
+      console.error("Shipping API Error", err);
+    } finally {
+      setShippingData(prev => ({ ...prev, loading: false }));
+    }
+  };
+
+  useEffect(() => {
+    if (addressData.city) {
+      fetchShippingCharge(addressData.zip, addressData.state, addressData.city);
+    }
+  }, [addressData.zip, addressData.state, addressData.city]);
 
   const subtotal = items.reduce((sum, item) => sum + item.totalPrice, 0);
   const discountAmount = (subtotal * specialDiscount) / 100;
   const taxableAmount = subtotal - discountAmount;
   const gstAmount = taxableAmount * 0.18;
-  const totalPrice = taxableAmount + gstAmount;
+  const shippingCharge = shippingData.charge;
+  const totalPrice = taxableAmount + gstAmount + shippingCharge;
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setAddressData(prev => ({ ...prev, [name]: value }));
+    if (name === 'state') {
+      setAddressData(prev => ({ ...prev, state: value, city: '' }));
+    } else {
+      setAddressData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleNextStep = (e) => {
     e.preventDefault();
+    setError('');
+    if (addressData.zip.length !== 6) {
+      setError("Please enter a valid 6-digit ZIP code");
+      return;
+    }
     setStep(2);
     window.scrollTo(0, 0);
   };
@@ -139,7 +203,7 @@ const Checkout = () => {
     setIsLoading(true);
     try {
       // 1. Create order on backend (Backend calculates total from DB)
-      const response = await fetch('http://localhost:5000/api/payment/create-order', {
+      const response = await fetch(`${API_BASE_URL}/api/payment/create-order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -162,12 +226,12 @@ const Checkout = () => {
         amount: orderData.amount,
         currency: orderData.currency,
         name: "Fine Bearing & Oil Seal",
-        description: "Secure B2B Purchase",
+        description: "Secure Purchase",
         order_id: orderData.id,
         handler: async function (response) {
           // 3. Verify payment on backend
           try {
-            const verifyRes = await fetch('http://localhost:5000/api/payment/verify', {
+            const verifyRes = await fetch(`${API_BASE_URL}/api/payment/verify`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -210,7 +274,7 @@ const Checkout = () => {
       rzp.open();
     } catch (error) {
       console.error("Payment Error:", error);
-      alert(error.message);
+      setError(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -284,9 +348,28 @@ const Checkout = () => {
                       <textarea required name="street" value={addressData.street} onChange={handleInputChange} rows="2" />
                     </div>
 
-                    <div className="form-group"><label>City *</label><input required name="city" value={addressData.city} onChange={handleInputChange} /></div>
-                    <div className="form-group"><label>State *</label><input required name="state" value={addressData.state} onChange={handleInputChange} /></div>
-                    <div className="form-group"><label>ZIP Code *</label><input required name="zip" value={addressData.zip} onChange={handleInputChange} /></div>
+                    <div className="form-group">
+                      <label>State *</label>
+                      <select required name="state" value={addressData.state} onChange={handleInputChange} className="checkout-select">
+                        <option value="">Select State</option>
+                        {Object.keys(indiaData).sort().map(state => (
+                          <option key={state} value={state}>{state}</option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div className="form-group">
+                      <label>City *</label>
+                      <select required name="city" value={addressData.city} onChange={handleInputChange} className="checkout-select" disabled={!addressData.state}>
+                        <option value="">Select City</option>
+                        {addressData.state && indiaData[addressData.state]?.sort().map(city => (
+                          <option key={city} value={city}>{city}</option>
+                        ))}
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+
+                    <div className="form-group"><label>ZIP Code *</label><input required name="zip" value={addressData.zip} onChange={handleInputChange} placeholder="6-digit Pincode" /></div>
                     <div className="form-group"><label>Country</label><input disabled name="country" value={addressData.country} /></div>
                     <div className="form-group full"><label>GST Number (Optional)</label><input name="gstNumber" placeholder="22AAAAA0000A1Z5" value={addressData.gstNumber} onChange={handleInputChange} /></div>
 
@@ -294,6 +377,9 @@ const Checkout = () => {
                       <textarea required name="nearbyPlaces" value={addressData.nearbyPlaces} onChange={handleInputChange} placeholder="e.g. Near Metro Pillar 12, Leave at gate" rows="2" />
                     </div>
                   </div>
+
+                  {error && <div className="checkout-error-alert">{error}</div>}
+
                   <button type="submit" className="btn-primary continue-btn">Continue to Review <ChevronRight size={18} /></button>
                 </form>
               </div>
@@ -309,6 +395,9 @@ const Checkout = () => {
                     {addressData.gstNumber && <p className="contact-info">GSTIN: {addressData.gstNumber}</p>}
                   </div>
                 </div>
+
+                {error && <div className="checkout-error-alert">{error}</div>}
+
                 <div className="form-actions">
                   <button onClick={handlePrevStep} className="btn-outline back-btn"><ArrowLeft size={18} /> Back</button>
                   <button onClick={handlePayment} className="btn-primary pay-btn">Pay ₹{totalPrice.toFixed(2)}</button>
@@ -319,13 +408,34 @@ const Checkout = () => {
 
           <aside className="checkout-sidebar">
             <div className="order-summary-card">
-              <h3>Summary</h3>
-              <div className="summary-row"><span>Items</span><span>₹{subtotal.toFixed(2)}</span></div>
+              <h3>Order Summary</h3>
+              <div className="summary-items">
+                {items.map(item => (
+                  <div key={item.id} className="summary-item-row">
+                    <span>{item.name} x {item.quantity}</span>
+                    <span>₹{item.totalPrice.toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="summary-divider"></div>
+              <div className="summary-row"><span>Subtotal</span><span>₹{subtotal.toFixed(2)}</span></div>
               {discountAmount > 0 && (
                 <div className="summary-row discount"><span>Special Discount</span><span>-₹{discountAmount.toFixed(2)}</span></div>
               )}
               <div className="summary-row"><span>Taxable Value</span><span>₹{taxableAmount.toFixed(2)}</span></div>
               <div className="summary-row"><span>GST (18%)</span><span>₹{gstAmount.toFixed(2)}</span></div>
+              
+              <div className={`summary-row shipping ${shippingData.loading ? 'loading' : ''}`}>
+                <span>Shipping {shippingData.days && `(${shippingData.days})`}</span>
+                {shippingData.loading ? <Loader2 size={14} className="animate-spin" /> : <span>₹{shippingCharge.toFixed(2)}</span>}
+              </div>
+
+              {shippingData.billableWeight > 0 && (
+                <div className="summary-info">
+                  <small>Billable Weight: {shippingData.billableWeight} kg ({shippingData.zone} zone)</small>
+                </div>
+              )}
+
               <div className="summary-total"><span>Total Payable</span><span className="amount">₹{totalPrice.toFixed(2)}</span></div>
             </div>
           </aside>

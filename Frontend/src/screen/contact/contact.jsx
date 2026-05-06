@@ -1,20 +1,46 @@
+import API_BASE_URL from '../../config';
 import React, { useState } from 'react';
-import { 
-  Phone, 
-  Mail, 
-  MapPin, 
-  Youtube, 
-  Instagram, 
-  Facebook, 
-  Linkedin, 
-  Send, 
-  MessageCircle, 
-  Clock, 
-  ShieldCheck, 
+import {
+  Phone,
+  Mail,
+  MapPin,
+  Send,
+  MessageCircle,
+  Clock,
+  ShieldCheck,
   ChevronRight,
   ExternalLink
 } from 'lucide-react';
 import './contact.css';
+
+const Youtube = ({ size = 24, color = "currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.94 2c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"></path>
+    <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>
+  </svg>
+);
+
+const Instagram = ({ size = 24, color = "currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+  </svg>
+);
+
+const Facebook = ({ size = 24, color = "currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+  </svg>
+);
+
+const Linkedin = ({ size = 24, color = "currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+    <rect x="2" y="9" width="4" height="12"></rect>
+    <circle cx="4" cy="4" r="2"></circle>
+  </svg>
+);
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -26,53 +52,73 @@ const Contact = () => {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({ name: '', phone: '', email: '', product: '', message: '' });
-    }, 3000);
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/request-quote`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setSubmitted(true);
+        setTimeout(() => {
+          setSubmitted(false);
+          setFormData({ name: '', phone: '', email: '', product: '', message: '' });
+        }, 3000);
+      } else {
+        console.error("Server responded with error:", response.status);
+      }
+    } catch (error) {
+      console.error("Submission error:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const socialLinks = [
-    { 
-      name: 'YouTube', 
-      icon: <Youtube size={24} />, 
-      link: 'https://www.youtube.com/@finebearingandoilsealstore', 
+    {
+      name: 'YouTube',
+      icon: <Youtube size={24} />,
+      link: 'https://www.youtube.com/@Finebrg',
       color: '#FF0000',
       description: 'Technical Tutorials & Product Reviews'
     },
-    { 
-      name: 'Instagram', 
-      icon: <Instagram size={24} />, 
-      link: 'https://www.instagram.com/finebearing/', 
+    {
+      name: 'Instagram',
+      icon: <Instagram size={24} />,
+      link: 'https://www.instagram.com/finebearings/',
       color: '#E1306C',
       description: 'Daily Updates & Behind the Scenes'
     },
-    { 
-      name: 'Facebook', 
-      icon: <Facebook size={24} />, 
-      link: 'https://www.facebook.com/finebearing', 
+    {
+      name: 'Facebook',
+      icon: <Facebook size={24} />,
+      link: 'https://www.facebook.com/Finebearings',
       color: '#1877F2',
       description: 'Industry News & Community'
     },
-    { 
-      name: 'LinkedIn', 
-      icon: <Linkedin size={24} />, 
-      link: 'https://www.linkedin.com/company/fine-bearing-oil-seal-store/', 
+    {
+      name: 'LinkedIn',
+      icon: <Linkedin size={24} />,
+      link: 'https://www.linkedin.com/company/fine-bearing-&-oil-seal-store---india/',
       color: '#0A66C2',
-      description: 'Professional B2B Network'
+      description: 'Professional Network'
     },
-    { 
-      name: 'WhatsApp', 
-      icon: <MessageCircle size={24} />, 
-      link: 'https://wa.me/918146119761', 
+    {
+      name: 'WhatsApp',
+      icon: <MessageCircle size={24} />,
+      link: 'https://wa.me/918146119761',
       color: '#25D366',
       description: 'Quick Enquiries & Support'
     }
@@ -94,30 +140,30 @@ const Contact = () => {
             <div className="info-card main-details">
               <h2>Fine Bearing & Oil Seal Store</h2>
               <span className="subtitle">Authorized Industrial Distributors</span>
-              
-              <div className="detail-item">
-                <div className="icon-box"><MapPin size={24} /></div>
-                <div>
-                  <h3>Our Location</h3>
-                  <p>Shere Punjab Building, Link Road,<br />Opposite Industrial Estate, Near Dholewal Bridge,<br />Ludhiana - 141003, Punjab, India</p>
-                </div>
-              </div>
 
-              <div className="detail-item">
-                <div className="icon-box"><Phone size={24} /></div>
-                <div>
-                  <h3>Call / WhatsApp</h3>
-                  <p>+91 8146119761</p>
-                </div>
-              </div>
+                <a href="https://maps.google.com/?q=Fine+Bearing+&+Oil+Seal+Store,+Ludhiana" target="_blank" rel="noopener noreferrer" className="detail-link">
+                  <div className="icon-box"><MapPin size={24} /></div>
+                  <div>
+                    <h3>Our Location</h3>
+                    <p>Shere Punjab Building, Link Road,<br />Opposite Industrial Estate, Near Dholewal Bridge,<br />Ludhiana - 141003, Punjab, India</p>
+                  </div>
+                </a>
 
-              <div className="detail-item">
-                <div className="icon-box"><Mail size={24} /></div>
-                <div>
-                  <h3>Email Address</h3>
-                  <p>sales@finebearings.com</p>
-                </div>
-              </div>
+                <a href="tel:+918146119761" className="detail-link">
+                  <div className="icon-box"><Phone size={24} /></div>
+                  <div>
+                    <h3>Call / WhatsApp</h3>
+                    <p>+91 8146119761</p>
+                  </div>
+                </a>
+
+                <a href="mailto:sales@finebearings.com" className="detail-link">
+                  <div className="icon-box"><Mail size={24} /></div>
+                  <div>
+                    <h3>Email Address</h3>
+                    <p>sales@finebearings.com</p>
+                  </div>
+                </a>
 
               <div className="detail-item">
                 <div className="icon-box"><Clock size={24} /></div>
@@ -133,10 +179,10 @@ const Contact = () => {
               <p>Stay updated with the latest industrial technology and product launches.</p>
               <div className="social-cards">
                 {socialLinks.map((social) => (
-                  <a 
-                    key={social.name} 
-                    href={social.link} 
-                    target="_blank" 
+                  <a
+                    key={social.name}
+                    href={social.link}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="social-card"
                     style={{ '--hover-color': social.color }}
@@ -155,7 +201,7 @@ const Contact = () => {
 
           <div className="contact-form-column">
             <div className="enquiry-card">
-              <div className="card-badge"><ShieldCheck size={16} /> Secure B2B Enquiry</div>
+              <div className="card-badge"><ShieldCheck size={16} /> Secure Enquiry</div>
               <h2>Send an Enquiry</h2>
               <p>Fill out the form below and our technical team will get back to you within 24 hours.</p>
 
@@ -183,8 +229,8 @@ const Contact = () => {
                   <textarea name="message" value={formData.message} onChange={handleChange} placeholder="Describe your requirement in detail..." rows="5" required></textarea>
                 </div>
 
-                <button type="submit" className={`submit-btn ${submitted ? 'success' : ''}`}>
-                  {submitted ? 'Enquiry Sent Successfully!' : <>Send Message <Send size={20} /></>}
+                <button type="submit" className={`submit-btn ${submitted ? 'success' : ''}`} disabled={loading}>
+                  {loading ? 'Sending...' : submitted ? 'Enquiry Sent Successfully!' : <>Send Message <Send size={20} /></>}
                 </button>
               </form>
 
@@ -204,10 +250,18 @@ const Contact = () => {
             <p>Expert insights, product comparisons, and maintenance tips for industrial components.</p>
           </div>
           <div className="video-container">
-            <iframe width="100%" height="500" src="https://www.youtube.com/embed/videoseries?list=UUv-mN0B0VvGvN0B0VvGvN0B" title="Industrial Insights" frameBorder="0" allowFullScreen></iframe>
+            <iframe 
+              width="100%" 
+              height="500" 
+              src="https://www.youtube.com/embed/gsSraTbyHYY" 
+              title="Industrial Insights" 
+              frameBorder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowFullScreen
+            ></iframe>
           </div>
           <div className="yt-cta">
-            <a href="https://www.youtube.com/@finebearingandoilsealstore" target="_blank" className="btn-yt">
+            <a href="https://www.youtube.com/@finebrg" target="_blank" className="btn-yt">
               <Youtube size={22} /> Subscribe for More
             </a>
           </div>
@@ -219,7 +273,7 @@ const Contact = () => {
             <p>Located in the heart of Ludhiana's industrial hub.</p>
           </div>
           <div className="map-wrapper">
-            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m12!1m3!1d3423.8!2d75.8!3d30.8!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzDCsDUzJzMzLjYiTiA3NcKwNDgnMDAuMCJF!5e0!3m2!1sen!2sin!4v1700000000000" width="100%" height="500" style={{ border: 0 }} allowFullScreen></iframe>
+            <iframe src="https://maps.google.com/maps?width=100%25&amp;height=100%25&amp;hl=en&amp;q=Fine%20Bearing%20%26%20Oil%20Seal%20Store,%20Ludhiana+(Fine%20Bearing)&amp;t=&amp;z=16&amp;ie=UTF8&amp;iwloc=B&amp;output=embed" width="100%" height="500" style={{ border: 0 }} allowFullScreen></iframe>
             <div className="map-info">
               <div className="info-badge"><ExternalLink size={14} /> <a href="https://maps.google.com" target="_blank">Open Maps</a></div>
             </div>

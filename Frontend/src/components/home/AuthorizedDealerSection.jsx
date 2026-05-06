@@ -1,16 +1,14 @@
 import React from 'react';
 import './AuthorizedDealerSection.css';
-import skfImage from '../../assets/Logo/skf.jpg';
-import fagImage from '../../assets/Logo/fag.webp';
-import ntnImage from '../../assets/Logo/ntn.jpeg';
-import nskImage from '../../assets/Logo/nsk.png';
-import schaefflerImage from '../../assets/Logo/schaffler.png';
+import skfImage from '../../assets/Logo/Skf.png';
+import fagImage from '../../assets/Logo/Fag.png';
+import ntnImage from '../../assets/Logo/NTN.png';
+import schaefflerImage from '../../assets/Logo/Schaeffler.png';
 
 const authorizedBrands = [
   { id: 1, name: "SKF", src: skfImage, bgColor: "#EBF4FA" },
   { id: 2, name: "FAG", src: fagImage, bgColor: "#FDF2F2" },
   { id: 3, name: "NTN", src: ntnImage, bgColor: "#EBF4FA" },
-  { id: 4, name: "NSK", src: nskImage, bgColor: "#EBF4FA" },
   { id: 5, name: "Schaeffler", src: schaefflerImage, bgColor: "#EEF9F1" },
 ];
 

@@ -1,6 +1,7 @@
+import API_BASE_URL from '../../config';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, Clock, Award, Eye, EyeOff, MessageCircle, ArrowRight } from 'lucide-react';
+import { ShieldCheck, Clock, Award, Eye, EyeOff, MessageCircle, ArrowRight, ArrowLeft } from 'lucide-react';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -57,7 +58,7 @@ const Auth = () => {
     setIsLoading(true);
     setErrorMsg('');
     try {
-      const res = await fetch('http://localhost:5000/api/auth/send-otp', {
+      const res = await fetch(`${API_BASE_URL}/api/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone }),
@@ -83,7 +84,7 @@ const Auth = () => {
     setIsLoading(true);
     setErrorMsg('');
     try {
-      const res = await fetch('http://localhost:5000/api/auth/verify-otp', {
+      const res = await fetch(`${API_BASE_URL}/api/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone, otp }),
@@ -115,7 +116,7 @@ const Auth = () => {
     setIsLoading(true);
     setErrorMsg('');
     try {
-      const res = await fetch('http://localhost:5000/api/auth/send-otp', {
+      const res = await fetch(`${API_BASE_URL}/api/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone }),
@@ -141,7 +142,7 @@ const Auth = () => {
     setIsLoading(true);
     setErrorMsg('');
     try {
-      const res = await fetch('http://localhost:5000/api/auth/register-otp', {
+      const res = await fetch(`${API_BASE_URL}/api/auth/register-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone, otp, name, company }),
@@ -180,7 +181,7 @@ const Auth = () => {
       // 1. Primary Auth Attempt: Backend (Handles Admin & Staff)
       try {
         console.log("Attempting backend login...");
-        const backendRes = await fetch('http://localhost:5000/api/auth/login', {
+        const backendRes = await fetch(`${API_BASE_URL}/api/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username: email.trim(), password }),
@@ -305,6 +306,14 @@ const Auth = () => {
   return (
     <div className="auth-wrapper">
       <div className="auth-left">
+        <button 
+          type="button"
+          onClick={() => navigate('/')} 
+          className="desktop-back-btn"
+        >
+          <ArrowLeft size={18} />
+          Back to Home
+        </button>
         <div className="auth-brand-content">
           <div className="auth-brand-logo">
             <img src={fineLogo} alt="Fine Bearing Logo" className="logo-image" style={{ height: '50px' }} />
@@ -323,6 +332,14 @@ const Auth = () => {
 
       <div className="auth-right">
         <div className="auth-card">
+          <button 
+            type="button"
+            onClick={() => navigate('/')} 
+            className="mobile-back-btn"
+          >
+            <ArrowLeft size={18} />
+            Back to Home
+          </button>
           <div className="auth-tabs" data-mode={authMode}>
             <button className={`auth-tab ${authMode === 'login' ? 'active' : ''}`} onClick={() => handleModeChange('login')}>Log In</button>
             <button className={`auth-tab ${authMode === 'signup' ? 'active' : ''}`} onClick={() => handleModeChange('signup')}>Sign Up</button>
@@ -433,7 +450,7 @@ const Auth = () => {
             <>
               <div className="auth-header">
                 <h2>Create Account</h2>
-                <p>Join Fine Bearing & Oil Seal Store for exclusive B2B benefits.</p>
+                <p>Join Fine Bearing & Oil Seal Store for exclusive benefits.</p>
               </div>
 
               <div className="auth-method-toggle" style={{ display: 'flex', gap: '10px', marginBottom: '1.5rem' }}>

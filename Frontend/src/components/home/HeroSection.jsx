@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import './HeroSection.css';
-import bearingImage from '../../assets/Bearings.png';
+import bearingImage from '../../assets/Bearingss.png';
+import Hydraulic from '../../assets/Hydraulic.png';
+import OilSeal from '../../assets/Oil Seal.png';
+import Motor from '../../assets/Motor.png';
 
 const heroSlides = [
   {
@@ -19,7 +22,7 @@ const heroSlides = [
     subtitle: "Top-Grade CNC Parts & Spares for Smooth Operations, Reduced Wear & Superior Efficiency in Every Cycle.",
     primaryCTA: "Buy Now",
     secondaryCTA: "View Products",
-    image: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&q=80&w=2000",
+    image: Motor,
     theme: "light"
   },
   {
@@ -28,7 +31,7 @@ const heroSlides = [
     subtitle: "Shop Advanced Hydraulic Equipment at Competitive Prices – Engineered for Strength, Smooth Operation & Maximum Output.",
     primaryCTA: "Buy Now",
     secondaryCTA: "View Products",
-    image: "https://images.unsplash.com/photo-1611075306631-f1f3a2c5890f?auto=format&fit=crop&q=80&w=2000",
+    image: Hydraulic,
     theme: "light"
   },
   {
@@ -37,7 +40,7 @@ const heroSlides = [
     subtitle: "High-Quality Oil Seals for Leak-Proof Performance, Dust Protection & Extended Machinery Life.",
     primaryCTA: "Buy Now",
     secondaryCTA: "View Products",
-    image: "https://images.unsplash.com/photo-1611075306631-f1f3a2c5890f?auto=format&fit=crop&q=80&w=2000",
+    image: OilSeal,
     theme: "light"
   },
   {
@@ -46,7 +49,7 @@ const heroSlides = [
     subtitle: "Upgrade Your Machinery with Reliable Hydraulic Seals – Reduce Wear, Improve Efficiency & Prevent Fluid Loss.",
     primaryCTA: "Buy Now",
     secondaryCTA: "View Products",
-    image: "https://images.unsplash.com/photo-1611075306631-f1f3a2c5890f?auto=format&fit=crop&q=80&w=2000",
+    image: Hydraulic,
     theme: "light"
   },
 ];

@@ -76,7 +76,7 @@
 
 .wcu-interactive-tab.active .wcu-tab-icon {
   color: #fff;
-  background-color: #ca8a04;
+  background-color: #EA580C;
   box-shadow: 0 10px 20px rgba(234, 179, 8, 0.3);
 }
 
@@ -89,7 +89,7 @@
 }
 
 .wcu-interactive-tab.active .wcu-tab-text h4 {
-  color: #ca8a04;
+  color: #EA580C;
 }
 
 .wcu-tab-text span {
@@ -174,7 +174,7 @@
 
 .wcu-panel-icon {
   margin-bottom: var(--space-4);
-  color: #ca8a04;
+  color: #EA580C;
 }
 
 .wcu-panel-content h3 {

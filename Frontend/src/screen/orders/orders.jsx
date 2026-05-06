@@ -1,11 +1,13 @@
+import API_BASE_URL from '../../config';
 import React, { useState, useEffect } from 'react';
-import { Package, ChevronRight, ShoppingBag, Clock, CheckCircle2, Truck, Box, XCircle, MapPin } from 'lucide-react';
+import { Package, ChevronRight, ShoppingBag, Clock, CheckCircle2, Truck, Box, XCircle, MapPin, X, Phone, Mail, Building, CreditCard, ReceiptText } from 'lucide-react';
 import { resolveImageUrl } from '../../components/home/ProductCard';
 import './orders.css';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
@@ -15,7 +17,7 @@ const Orders = () => {
         return;
       }
       try {
-        const response = await fetch(`http://localhost:5000/api/orders/${user.email || user.username}`);
+        const response = await fetch(`http://127.0.0.1:5000/api/orders/${user.email || user.username}`);
         if (response.ok) {
           const data = await response.json();
           setOrders(data.sort((a, b) => new Date(b.date) - new Date(a.date)));
@@ -148,15 +150,101 @@ const Orders = () => {
                 </div>
 
                 <div className="order-footer-actions">
-                  <button className="btn-details">
+                  <button className="btn-details" onClick={() => setSelectedOrder(order)}>
                     View Full Details <ChevronRight size={16} />
                   </button>
-                  <button className="btn-support">
+                  <button className="btn-support" onClick={() => window.location.href = '/contact'}>
                     Contact Support
                   </button>
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* --- Order Details Modal --- */}
+        {selectedOrder && (
+          <div className="order-modal-backdrop" onClick={() => setSelectedOrder(null)}>
+            <div className="order-details-modal" onClick={e => e.stopPropagation()}>
+              <div className="modal-header">
+                <div className="header-info">
+                  <h3>Order Details</h3>
+                  <span className="order-id">#{selectedOrder.orderId}</span>
+                </div>
+                <button className="close-modal" onClick={() => setSelectedOrder(null)}>
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div className="modal-body">
+                {/* Status Section */}
+                <div className="modal-section status-section">
+                  <div className={`status-banner ${selectedOrder.status.toLowerCase().replace(' ', '-')}`}>
+                    {getStatusIcon(selectedOrder.status)}
+                    <span>Order is currently <strong>{selectedOrder.status}</strong></span>
+                  </div>
+                  <p className="order-timestamp">Placed on {new Date(selectedOrder.date).toLocaleString()}</p>
+                </div>
+
+                <div className="modal-grid">
+                  {/* Left Column: Items */}
+                  <div className="modal-left">
+                    <div className="modal-section">
+                      <h4><ShoppingBag size={18} /> Items Ordered</h4>
+                      <div className="modal-items-list">
+                        {selectedOrder.items.map((item, i) => (
+                          <div key={i} className="modal-item">
+                            <img src={resolveImageUrl(item.image)} alt={item.name} />
+                            <div className="item-details">
+                              <p className="item-name">{item.name}</p>
+                              <p className="item-qty">Qty: {item.quantity} × ₹{item.price || (item.totalPrice/item.quantity).toFixed(2)}</p>
+                            </div>
+                            <div className="item-price">₹{item.totalPrice.toFixed(2)}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column: Address & Payment */}
+                  <div className="modal-right">
+                    <div className="modal-section">
+                      <h4><MapPin size={18} /> Shipping Address</h4>
+                      <div className="info-card">
+                        {selectedOrder.shippingAddress ? (
+                          <>
+                            <p className="customer-name">{selectedOrder.shippingAddress.fullName}</p>
+                            <p>{selectedOrder.shippingAddress.street}</p>
+                            <p>{selectedOrder.shippingAddress.landmark}</p>
+                            <p>{selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state} - {selectedOrder.shippingAddress.zip}</p>
+                            <p className="contact-row"><Phone size={14} /> {selectedOrder.shippingAddress.phone}</p>
+                            <p className="contact-row"><Mail size={14} /> {selectedOrder.shippingAddress.email}</p>
+                          </>
+                        ) : (
+                          <p>Address data missing.</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="modal-section">
+                      <h4><ReceiptText size={18} /> Price Breakdown</h4>
+                      <div className="price-card">
+                        <div className="price-row"><span>Subtotal</span><span>₹{(selectedOrder.total / 1.18).toFixed(2)}</span></div>
+                        <div className="price-row"><span>GST (18%)</span><span>₹{(selectedOrder.total - (selectedOrder.total / 1.18)).toFixed(2)}</span></div>
+                        <div className="price-divider"></div>
+                        <div className="price-total"><span>Total Paid</span><span>₹{selectedOrder.total.toFixed(2)}</span></div>
+                        <p className="payment-method"><CreditCard size={14} /> Paid via Razorpay</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button className="btn-print" onClick={() => window.print()}>Download Invoice</button>
+                <button className="btn-primary-small" onClick={() => setSelectedOrder(null)}>Done</button>
+              </div>
+            </div>
           </div>
         )}
       </div>

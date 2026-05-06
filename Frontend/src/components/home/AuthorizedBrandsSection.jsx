@@ -1,15 +1,16 @@
 import React from 'react';
 import './AuthorizedBrandsSection.css';
-import fagImage from '../../assets/Logo/fag.webp';
-import arbImage from '../../assets/Logo/arb.jpeg';
-import nskImage from '../../assets/Logo/nsk.png';
-import hiwinImage from '../../assets/Logo/hiwin.jpg';
+import fagImage from '../../assets/Logo/Fag.png';
+import arbImage from '../../assets/Logo/Arb.png';
+import hiwinImage from '../../assets/Logo/Hiwin.png';
+import nskImage from '../../assets/Logo/NSK.png';
+import AlpImage from '../../assets/Logo/Alp.png';
 
 const authorizedBrands = [
   { id: 1, name: "FAG", src: fagImage, bgColor: "#FDF2F2" },
   { id: 2, name: "ARB", src: arbImage, bgColor: "#F5F7F9" },
   { id: 3, name: "NSK", src: nskImage, bgColor: "#EBF4FA" },
-  { id: 4, name: "ACP", src: null, bgColor: "#FFF4E5", textLogo: "ACP" }, // Placeholder for ACP if image missing
+  { id: 4, name: "ACP", src: AlpImage, bgColor: "#FFF4E5" },
   { id: 5, name: "HIWIN", src: hiwinImage, bgColor: "#EEF9F1" },
 ];
 
@@ -30,8 +31,8 @@ const AuthorizedBrandsSection = () => {
           <div className="carousel-3d-container">
             <div className="carousel-3d">
               {authorizedBrands.map((brand, index) => (
-                <div 
-                  key={brand.id} 
+                <div
+                  key={brand.id}
                   className="carousel-3d-item"
                   style={{
                     '--index': index,

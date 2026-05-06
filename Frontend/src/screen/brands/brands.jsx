@@ -1,3 +1,4 @@
+import API_BASE_URL from '../../config';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Package, ChevronRight, SlidersHorizontal, Grid, Tag, AlertCircle } from 'lucide-react';
@@ -17,7 +18,7 @@ const Brands = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/products');
+        const response = await fetch(`${API_BASE_URL}/api/products`);
         if (!response.ok) throw new Error('Failed to fetch brand data');
         const data = await response.json();
         setProducts(data);

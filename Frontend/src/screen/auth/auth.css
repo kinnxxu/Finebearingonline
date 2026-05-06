@@ -308,3 +308,49 @@
 }
 
 .auth-footer { margin-top: 2.5rem; text-align: center; font-size: 0.8125rem; color: var(--color-text-muted); line-height: 1.6; }
+
+/* Back Buttons */
+.desktop-back-btn {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  backdrop-filter: blur(4px);
+  transition: all 0.3s ease;
+}
+
+.desktop-back-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(-4px);
+}
+
+.mobile-back-btn {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .mobile-back-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    cursor: pointer;
+    margin-bottom: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 0;
+  }
+}

@@ -1,3 +1,4 @@
+import API_BASE_URL from '../../config';
 import React, { useState, useEffect } from 'react';
 import { Users, UserPlus, Trash2, Edit2, Mail, Shield, User, Phone } from 'lucide-react';
 import { initializeApp, deleteApp } from 'firebase/app';
@@ -48,7 +49,7 @@ const EmployeeManagement = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:5000/api/admin/employees', {
+      const response = await fetch(`${API_BASE_URL}/api/admin/employees`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
@@ -117,8 +118,8 @@ const EmployeeManagement = () => {
 
       // 2. Save to Backend (employees.json)
       const url = editingId 
-        ? `http://localhost:5000/api/admin/employees/${editingId}`
-        : 'http://localhost:5000/api/admin/employees';
+        ? `http://127.0.0.1:5000/api/admin/employees/${editingId}`
+        : `${API_BASE_URL}/api/admin/employees`;
       
       const method = editingId ? 'PUT' : 'POST';
 
@@ -154,7 +155,7 @@ const EmployeeManagement = () => {
     if (!window.confirm("Are you sure?")) return;
     try {
       // 1. Delete from Backend
-      const response = await fetch(`http://localhost:5000/api/admin/employees/${id}`, {
+      const response = await fetch(`http://127.0.0.1:5000/api/admin/employees/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

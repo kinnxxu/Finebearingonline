@@ -53,8 +53,8 @@
 .brand-logo {
   width: 100%;
   height: 100%;
-  padding: 12px; /* Explicit padding ensures nice frame */
-  object-fit: contain;
+  padding: 0; /* Changed from 12px to cover whole card */
+  object-fit: cover;
   display: block;
   mix-blend-mode: multiply; /* Keeps the dynamic pastel backgrounds seamless with jpgs */
 }

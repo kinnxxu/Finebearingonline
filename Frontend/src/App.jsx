@@ -10,6 +10,7 @@ import ProfilePage from './screen/profile/profile';
 import OrderSuccessPage from './screen/order-success/order-success';
 import OrderFailurePage from './screen/order-failure/order-failure';
 import OrdersPage from './screen/orders/orders';
+import ContactPage from './screen/contact/contact';
 import EmployeePanel from './screen/employee-panel/employee-panel';
 import EmployeeManagement from './screen/employee-management/employee-management';
 import UserManagement from './screen/user-management/user-management';
@@ -29,34 +30,35 @@ function App() {
   return (
     <ToastProvider>
       <Router>
-      <ScrollToTop />
-      <div className="app">
-        <Navbar />
-        <WhatsAppFloat />
-        <QuoteFloat />
-        <main>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/products" element={<ProductsPage />} />
-            <Route path="/brands" element={<BrandsPage />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/login" element={<AuthPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/order-success" element={<OrderSuccessPage />} />
-            <Route path="/order-failure" element={<OrderFailurePage />} />
-            <Route path="/orders" element={<OrdersPage />} />
-            <Route path="/employee-panel" element={<EmployeePanel />} />
-            <Route path="/admin/employees" element={<EmployeeManagement />} />
-            <Route path="/admin/users" element={<UserManagement />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/quote" element={<RequestQuotePage />} />
-            <Route path="/privacy" element={<LegalPage />} />
-            <Route path="/terms" element={<LegalPage />} />
-            <Route path="/product/:id" element={<ProductDetailPage />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
+        <ScrollToTop />
+        <div className="app">
+          <Navbar />
+          <WhatsAppFloat />
+          <QuoteFloat />
+          <main>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/products" element={<ProductsPage />} />
+              <Route path="/brands" element={<BrandsPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/login" element={<AuthPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/order-success" element={<OrderSuccessPage />} />
+              <Route path="/order-failure" element={<OrderFailurePage />} />
+              <Route path="/orders" element={<OrdersPage />} />
+              <Route path="/employee-panel" element={<EmployeePanel />} />
+              <Route path="/admin/employees" element={<EmployeeManagement />} />
+              <Route path="/admin/users" element={<UserManagement />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/quote" element={<RequestQuotePage />} />
+              <Route path="/privacy" element={<LegalPage />} />
+              <Route path="/terms" element={<LegalPage />} />
+              <Route path="/product/:id" element={<ProductDetailPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
       </Router>
     </ToastProvider>
   );

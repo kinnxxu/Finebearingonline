@@ -263,3 +263,22 @@
   padding-bottom: var(--space-2);
   border-bottom: 1px solid var(--color-border);
 }
+/* iOS Style Mobile Search Bar */
+.mobile-search-toggle { display: flex; }
+@media (min-width: 768px) { .mobile-search-toggle { display: none; } }
+
+.ios-search-overlay {
+  position: fixed; top: -100px; left: 0; width: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  padding: 8px 16px; z-index: 10000;
+  transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+.ios-search-overlay.active { top: 0; }
+.ios-search-container { display: flex; align-items: center; gap: 12px; max-width: 600px; margin: 0 auto; }
+.ios-search-field { flex: 1; background-color: #f2f2f7; border-radius: 10px; display: flex; align-items: center; padding: 8px 10px; gap: 8px; }
+.ios-search-icon { color: #8e8e93; }
+.ios-search-field input { flex: 1; background: transparent; border: none; font-size: 17px; outline: none; color: #000; }
+.ios-clear-btn { background-color: #8e8e93; color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0.6; }
+.ios-cancel-btn { color: #007aff; font-size: 17px; font-weight: 400; background: transparent; white-space: nowrap; }

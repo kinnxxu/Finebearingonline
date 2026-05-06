@@ -1,3 +1,4 @@
+import API_BASE_URL from '../../config';
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -18,6 +19,7 @@ import {
   FileText
 } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
+import { isAdmin } from '../../utils/auth';
 import ProductCard, { resolveImageUrl } from '../../components/home/ProductCard';
 import './product-detail.css';
 
@@ -27,6 +29,7 @@ const ProductDetail = () => {
   const dispatch = useDispatch();
   const { showToast } = useToast();
   const cartItems = useSelector((state) => state.cart.items);
+  const isAdminUser = isAdmin();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -63,7 +66,7 @@ const ProductDetail = () => {
     const fetchProduct = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`http://localhost:5000/api/products/${id}`);
+        const response = await fetch(`http://127.0.0.1:5000/api/products/${id}`);
         if (!response.ok) throw new Error('Product not found');
         const data = await response.json();
 
@@ -88,7 +91,7 @@ const ProductDetail = () => {
 
         setProduct(enrichedProduct);
 
-        const allRes = await fetch('http://localhost:5000/api/products');
+        const allRes = await fetch(`${API_BASE_URL}/api/products`);
         if (allRes.ok) {
           const allData = await allRes.json();
           const filtered = allData.filter(p => String(p.id) !== String(data.id) && String(p.slug) !== String(data.slug));
@@ -175,6 +178,7 @@ const ProductDetail = () => {
     }
 
     handleAddToCart();
+    navigate('/checkout');
   };
 
   if (loading) return <div>Loading...</div>;
@@ -251,18 +255,24 @@ const ProductDetail = () => {
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '1.5rem' }}>
-                <span style={{ fontWeight: '600' }}>Quantity:</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '5px' }}>
-                  <button onClick={() => setQuantity(Math.max(1, quantity - 1))} style={{ padding: '5px 10px', background: 'none', border: 'none', cursor: 'pointer' }}>-</button>
-                  <span style={{ width: '30px', textAlign: 'center', fontWeight: 'bold' }}>{quantity}</span>
-                  <button onClick={() => setQuantity(quantity + 1)} style={{ padding: '5px 10px', background: 'none', border: 'none', cursor: 'pointer' }}>+</button>
-                </div>
+                {!isAdminUser ? (
+                  <>
+                    <span style={{ fontWeight: '600' }}>Quantity:</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '5px' }}>
+                      <button onClick={() => setQuantity(Math.max(1, quantity - 1))} style={{ padding: '5px 10px', background: 'none', border: 'none', cursor: 'pointer' }}>-</button>
+                      <span style={{ width: '30px', textAlign: 'center', fontWeight: 'bold' }}>{quantity}</span>
+                      <button onClick={() => setQuantity(quantity + 1)} style={{ padding: '5px 10px', background: 'none', border: 'none', cursor: 'pointer' }}>+</button>
+                    </div>
+                  </>
+                ) : (
+                  <span style={{ fontWeight: '600', color: '#94a3b8', fontStyle: 'italic' }}>Admin View - Purchasing Disabled</span>
+                )}
               </div>
 
               {/* CATALOGUE BUTTON */}
               {product.catalogue && (
                 <button
-                  onClick={() => window.open(product.catalogue, '_blank')}
+                  onClick={() => window.open(resolveImageUrl(product.catalogue), '_blank')}
                   style={{
                     width: '100%',
                     padding: '12px',
@@ -287,40 +297,42 @@ const ProductDetail = () => {
                 </button>
               )}
 
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <button
-                  onClick={handleAddToCart}
-                  style={{
-                    flex: 1,
-                    padding: '16px',
-                    background: '#f1f5f9',
-                    color: '#0f172a',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    fontSize: '1rem'
-                  }}
-                >
-                  Add to Cart
-                </button>
-                <button
-                  onClick={handleBuyNow}
-                  style={{
-                    flex: 1,
-                    padding: '16px',
-                    background: '#EA580C',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    fontSize: '1rem'
-                  }}
-                >
-                  Buy Now
-                </button>
-              </div>
+              {!isAdminUser && (
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <button
+                    onClick={handleAddToCart}
+                    style={{
+                      flex: 1,
+                      padding: '16px',
+                      background: '#f1f5f9',
+                      color: '#0f172a',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '8px',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      fontSize: '1rem'
+                    }}
+                  >
+                    Add to Cart
+                  </button>
+                  <button
+                    onClick={handleBuyNow}
+                    style={{
+                      flex: 1,
+                      padding: '16px',
+                      background: '#EA580C',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      fontSize: '1rem'
+                    }}
+                  >
+                    Buy Now
+                  </button>
+                </div>
+              )}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b', fontSize: '0.875rem', borderTop: '1px solid #f1f5f9', paddingTop: '1.5rem' }}>

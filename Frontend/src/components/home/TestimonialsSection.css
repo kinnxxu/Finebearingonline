@@ -44,7 +44,8 @@
   position: absolute;
   top: var(--space-6);
   right: var(--space-6);
-  color: rgba(15, 23, 42, 0.05); /* Very faint primary color */
+  color: rgba(15, 23, 42, 0.05);
+  /* Very faint primary color */
 }
 
 .rating {
@@ -58,8 +59,9 @@
 }
 
 .star-icon.filled {
-  color: #f59e0b; /* Golden yellow */
-  fill: #f59e0b;
+  color: #EA580c;
+  /* Golden yellow */
+  fill: #EA580c;
 }
 
 .testimonial-text {

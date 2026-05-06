@@ -1,23 +1,21 @@
 import React from 'react';
 import './BrandsSection.css';
-import skfImage from '../../assets/Logo/skf.jpg';
-import yukenImage from '../../assets/Logo/Yuken.gif';
-import fagImage from '../../assets/Logo/fag.webp';
-import hiwinImage from '../../assets/Logo/hiwin.jpg';
-import finhyImage from '../../assets/Logo/finhy.png';
-import ntnImage from '../../assets/Logo/ntn.jpeg';
-import nachiImage from '../../assets/Logo/nachi.png';
-import arbImage from '../../assets/Logo/arb.jpeg';
+import skfImage from '../../assets/Logo/Skf.png';
+import yukenImage from '../../assets/Logo/Yuken.png';
+import fagImage from '../../assets/Logo/Fag.png';
+import hiwinImage from '../../assets/Logo/Hiwin.png';
+import finhyImage from '../../assets/Logo/Finhy.png';
+import ntnImage from '../../assets/Logo/NTN.png';
+import nachiImage from '../../assets/Logo/Nachi.png';
+import arbImage from '../../assets/Logo/Arb.png';
 import polyhydronImage from '../../assets/Logo/Polyhydron.png';
-import alpImage from '../../assets/Logo/alp.png';
-import kluberImage from '../../assets/Logo/kluber.png';
-import loctiteImage from '../../assets/Logo/loctit.jpeg';
-import nskImage from '../../assets/Logo/nsk.png';
-import oksImage from '../../assets/Logo/oks.png';
-import schaefflerImage from '../../assets/Logo/schaffler.png';
-import walvoilImage from '../../assets/Logo/walvoil.jpeg';
-import pmiImage from '../../assets/Logo/PMI.png';
-import nbcImage from '../../assets/Logo/NBC.png';
+import alpImage from '../../assets/Logo/Alp.png';
+import kluberImage from '../../assets/Logo/Kluber.png';
+import loctiteImage from '../../assets/Logo/Loctite.png';
+import oksImage from '../../assets/Logo/Oks.png';
+import schaefflerImage from '../../assets/Logo/Schaeffler.png';
+import walvoilImage from '../../assets/Logo/Walvoil.png';
+import pmiImage from '../../assets/Logo/Pmi.png';
 
 
 const brands = [
@@ -34,11 +32,9 @@ const brands = [
   { id: 11, name: "KLUBER", src: kluberImage, bgColor: "#F5F7F9" },
   { id: 12, name: "PMI", src: pmiImage, bgColor: "#F5F7F9" },
   { id: 13, name: "Loctite", src: loctiteImage, bgColor: "#FDF2F2" },
-  { id: 14, name: "NSK", src: nskImage, bgColor: "#EBF4FA" },
   { id: 15, name: "OKS", src: oksImage, bgColor: "#F5F7F9" },
   { id: 16, name: "Schaeffler", src: schaefflerImage, bgColor: "#EEF9F1" },
   { id: 17, name: "Walvoil", src: walvoilImage, bgColor: "#FDF2F2" },
-  { id: 18, name: "NBC", src: nbcImage, bgColor: "#FDF2F2" },
 ];
 
 const BrandsSection = () => {

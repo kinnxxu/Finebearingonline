@@ -1,3 +1,4 @@
+import API_BASE_URL from '../../config';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -6,7 +7,7 @@ import { ShoppingCart } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 import './ProductCard.css';
 
-const BACKEND_URL = 'http://localhost:5000';
+const BACKEND_URL = `${API_BASE_URL}`;
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=600';
 
 /**
@@ -121,18 +122,24 @@ const ProductCard = ({ product, isAdmin, onEdit, onDelete }) => {
           </div>
           
           <div className="product-action-row" onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}>
-            <div className="product-qty-control">
-              <button className="qty-btn-small" onClick={(e) => handleQtyChange(e, -1)}>-</button>
-              <span className="qty-display-small">{quantity}</span>
-              <button className="qty-btn-small" onClick={(e) => handleQtyChange(e, 1)}>+</button>
-            </div>
-            <button
-              className="add-to-cart-btn"
-              onClick={handleAddToCart}
-            >
-              <ShoppingCart size={16} />
-              <span>Add</span>
-            </button>
+            {!isAdmin ? (
+              <>
+                <div className="product-qty-control">
+                  <button className="qty-btn-small" onClick={(e) => handleQtyChange(e, -1)}>-</button>
+                  <span className="qty-display-small">{quantity}</span>
+                  <button className="qty-btn-small" onClick={(e) => handleQtyChange(e, 1)}>+</button>
+                </div>
+                <button
+                  className="add-to-cart-btn"
+                  onClick={handleAddToCart}
+                >
+                  <ShoppingCart size={16} />
+                  <span>Add</span>
+                </button>
+              </>
+            ) : (
+              <span className="admin-view-only" style={{ fontSize: '0.8rem', color: '#94a3b8', fontStyle: 'italic' }}>View Only</span>
+            )}
           </div>
         </div>
       </div>

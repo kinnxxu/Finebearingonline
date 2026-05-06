@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { addItem, removeItem, clearCart } from '../../redux/cartSlice';
+import { addItem, removeItem, clearCart, deleteFromCart } from '../../redux/cartSlice';
 import { resolveImageUrl } from '../home/ProductCard';
 import { X, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
 import './CartDrawer.css';
@@ -28,6 +28,20 @@ const CartDrawer = ({ isOpen, onClose }) => {
 
   const handleDecrement = (id) => {
     dispatch(removeItem(id));
+  };
+
+  const handleQuantityChange = (item, newQty) => {
+    const qty = parseInt(newQty);
+    if (isNaN(qty) || qty < 1) return;
+    
+    dispatch(addItem({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      image: item.image,
+      quantity: qty,
+      replace: true
+    }));
   };
 
   const navigate = useNavigate();
@@ -100,7 +114,13 @@ const CartDrawer = ({ isOpen, onClose }) => {
                         >
                           <Minus size={14} />
                         </button>
-                        <span className="qty-value">{item.quantity}</span>
+                        <input
+                          type="number"
+                          className="qty-input"
+                          value={item.quantity}
+                          onChange={(e) => handleQuantityChange(item, e.target.value)}
+                          min="1"
+                        />
                         <button
                           className="qty-btn"
                           onClick={() => handleIncrement(item)}
@@ -110,9 +130,18 @@ const CartDrawer = ({ isOpen, onClose }) => {
                       </div>
                     </div>
                     <div className="cart-item-total">
-                      {item.totalPrice > 0
-                        ? `₹${item.totalPrice.toFixed(2)}`
-                        : '—'}
+                      <span>
+                        {item.totalPrice > 0
+                          ? `₹${item.totalPrice.toFixed(2)}`
+                          : '—'}
+                      </span>
+                      <button
+                        className="cart-item-remove"
+                        onClick={() => dispatch(deleteFromCart(item.id))}
+                        title="Remove item"
+                      >
+                        <X size={16} />
+                      </button>
                     </div>
                   </div>
                 );

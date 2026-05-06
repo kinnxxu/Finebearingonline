@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
@@ -15,6 +15,8 @@ const Navbar = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [cartOpen, setCartOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const searchRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
   const totalQuantity = useSelector((state) => state.cart.totalQuantity);
@@ -23,7 +25,17 @@ const Navbar = () => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
+    
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setIsSearchVisible(false);
+      }
+    };
+
     window.addEventListener('scroll', handleScroll);
+    if (isSearchVisible) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
 
     // Check authentication
     const authStatus = localStorage.getItem('isAdminAuthenticated');
@@ -32,8 +44,11 @@ const Navbar = () => {
     const userData = localStorage.getItem('user');
     setCurrentUser(userData ? JSON.parse(userData) : null);
 
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [location]);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [location, isSearchVisible]);
 
   // Hide Navbar on Login page
   if (location.pathname === '/login') return null;
@@ -91,7 +106,7 @@ const Navbar = () => {
                   <NavLink to="/about" className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`}>About</NavLink>
                 </div>
                 <div className="nav-item">
-                  <span className="nav-link">Contact</span>
+                  <NavLink to="/contact" className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`}>Contact</NavLink>
                 </div>
               </>
             )}
@@ -170,11 +185,44 @@ const Navbar = () => {
               <ShoppingCart size={22} />
               {totalQuantity > 0 && <span className="cart-badge">{totalQuantity}</span>}
             </button>
+            
+            <button className="icon-btn mobile-search-toggle" onClick={() => setIsSearchVisible(true)}>
+              <Search size={22} />
+            </button>
+
             <button
               className="mobile-menu-btn"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+        </div>
+
+        {/* iOS Style Mobile Search Bar */}
+        <div className={`ios-search-overlay ${isSearchVisible ? 'active' : ''}`}>
+          <div className="ios-search-container" ref={searchRef}>
+            <div className="ios-search-field">
+              <Search size={16} className="ios-search-icon" />
+              <input
+                type="text"
+                placeholder="Search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch(e)}
+                autoFocus={isSearchVisible}
+              />
+              {searchQuery && (
+                <button className="ios-clear-btn" onClick={() => setSearchQuery('')}>
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+            <button className="ios-cancel-btn" onClick={() => {
+              setIsSearchVisible(false);
+              setSearchQuery('');
+            }}>
+              Cancel
             </button>
           </div>
         </div>
@@ -196,7 +244,7 @@ const Navbar = () => {
             {(!currentUser || currentUser.role?.toLowerCase() !== 'admin') && (
               <>
                 <Link to="/brands" onClick={() => setMobileMenuOpen(false)}>Brands</Link>
-                <span>Contact</span>
+                <Link to="/contact" onClick={() => setMobileMenuOpen(false)}>Contact</Link>
               </>
             )}
             {currentUser && currentUser.role?.toLowerCase() === 'user' && (

@@ -1,3 +1,4 @@
+import API_BASE_URL from '../../config';
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import ProductCard, { resolveImageUrl } from '../../components/home/ProductCard';
@@ -19,6 +20,7 @@ const Products = () => {
   const [sortBy, setSortBy] = useState('default');
   const [uploading, setUploading] = useState(false);
   const [uploadingAdditional, setUploadingAdditional] = useState(false);
+  const [uploadingCatalogue, setUploadingCatalogue] = useState(false);
 
   // Admin State
   const [showAdminForm, setShowAdminForm] = useState(false);
@@ -55,7 +57,7 @@ const Products = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/products');
+      const response = await fetch(`${API_BASE_URL}/api/products`);
       if (!response.ok) throw new Error('Failed to fetch products');
       const data = await response.json();
 
@@ -80,7 +82,7 @@ const Products = () => {
 
     setUploading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/upload', {
+      const response = await fetch(`${API_BASE_URL}/api/upload`, {
         method: 'POST',
         body: formDataUpload,
       });
@@ -106,7 +108,7 @@ const Products = () => {
 
     setUploadingAdditional(true);
     try {
-      const response = await fetch('http://localhost:5000/api/upload', {
+      const response = await fetch(`${API_BASE_URL}/api/upload`, {
         method: 'POST',
         body: formDataUpload,
       });
@@ -119,6 +121,32 @@ const Products = () => {
       alert('Error uploading additional image: ' + err.message);
     } finally {
       setUploadingAdditional(false);
+    }
+  };
+
+  const handleCatalogueUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formDataUpload = new FormData();
+    formDataUpload.append('catalogue', file);
+
+    setUploadingCatalogue(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/upload-catalogue`, {
+        method: 'POST',
+        body: formDataUpload,
+      });
+
+      if (!response.ok) throw new Error('Upload failed');
+
+      const data = await response.json();
+      setFormData(prev => ({ ...prev, catalogue: data.filePath }));
+      alert('Catalogue PDF uploaded successfully!');
+    } catch (err) {
+      alert('Error uploading catalogue: ' + err.message);
+    } finally {
+      setUploadingCatalogue(false);
     }
   };
 
@@ -186,7 +214,7 @@ const Products = () => {
 
   const handleAddProduct = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/products', {
+      const response = await fetch(`${API_BASE_URL}/api/products`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -239,7 +267,7 @@ const Products = () => {
 
   const handleUpdateProduct = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/products/${editingId}`, {
+      const response = await fetch(`http://127.0.0.1:5000/api/products/${editingId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -259,7 +287,7 @@ const Products = () => {
   const handleDeleteProduct = async (id) => {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
     try {
-      const response = await fetch(`http://localhost:5000/api/products/${id}`, {
+      const response = await fetch(`http://127.0.0.1:5000/api/products/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -394,7 +422,18 @@ const Products = () => {
                       <div className="form-group"><label>Subcategory</label><input className="form-input" name="subcategory" value={formData.subcategory} onChange={handleInputChange} /></div>
                       <div className="form-group"><label>Price</label><input className="form-input" type="number" name="price" value={formData.price} onChange={handleInputChange} /></div>
                       <div className="form-group"><label>Stock</label><input className="form-input" type="number" name="stock" value={formData.stock} onChange={handleInputChange} /></div>
-                      <div className="form-group"><label>Technical Catalogue URL</label><input className="form-input" name="catalogue" value={formData.catalogue} onChange={handleInputChange} placeholder="https://example.com/catalogue.pdf" /></div>
+                      <div className="form-group">
+                        <label>Technical Catalogue (Any Format)</label>
+                        <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+                          <div className="form-input" style={{ flex: 1, background: '#f8fafc', color: '#64748b', fontSize: '0.85rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', height: '42px' }}>
+                            {formData.catalogue ? formData.catalogue.split('/').pop() : 'No catalogue uploaded'}
+                          </div>
+                          <label className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', padding: '0 15px', whiteSpace: 'nowrap', height: '42px', margin: 0, fontSize: '0.9rem' }}>
+                            {uploadingCatalogue ? '...' : 'Upload File'}
+                            <input type="file" style={{ display: 'none' }} onChange={handleCatalogueUpload} />
+                          </label>
+                        </div>
+                      </div>
                       <div className="form-group">
                         <label>Main Image URL</label>
                         <div style={{ display: 'flex', gap: '5px' }}>

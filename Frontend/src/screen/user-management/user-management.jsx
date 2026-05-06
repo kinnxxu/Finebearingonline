@@ -1,5 +1,6 @@
+import API_BASE_URL from '../../config';
 import React, { useState, useEffect } from 'react';
-import { Users, Search, Percent, Save, User as UserIcon, Building2, Phone, Calendar } from 'lucide-react';
+import { Users, Search, Percent, Save, User as UserIcon, Building2, Phone, Calendar, CheckCircle2 } from 'lucide-react';
 import { getAuthToken, isAdmin } from '../../utils/auth';
 import './user-management.css';
 
@@ -9,7 +10,8 @@ const UserManagement = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [updatingId, setUpdatingId] = useState(null);
-  
+  const [successState, setSuccessState] = useState({ id: null, type: null });
+
   const token = getAuthToken();
   const isAdminUser = isAdmin();
 
@@ -25,7 +27,7 @@ const UserManagement = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:5000/api/admin/users', {
+      const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
@@ -46,7 +48,7 @@ const UserManagement = () => {
   const handleUpdateDiscount = async (userId, discount) => {
     setUpdatingId(userId);
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/users/${userId}/discount`, {
+      const response = await fetch(`http://127.0.0.1:5000/api/admin/users/${userId}/discount`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -58,6 +60,10 @@ const UserManagement = () => {
       if (response.ok) {
         const updatedUser = await response.json();
         setUsers(users.map(u => u.id === userId ? updatedUser : u));
+        
+        setSuccessState({ id: userId, type: 'discount' });
+        setTimeout(() => setSuccessState({ id: null, type: null }), 2000);
+
         // Also update local storage if it's the current user (though unlikely for admin to discount themselves here)
         const currentUser = JSON.parse(localStorage.getItem('user'));
         if (currentUser && currentUser.id === userId) {
@@ -77,7 +83,7 @@ const UserManagement = () => {
   const handleUpdateGst = async (userId, gst) => {
     setUpdatingId(userId);
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/users/${userId}/gst`, {
+      const response = await fetch(`http://127.0.0.1:5000/api/admin/users/${userId}/gst`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -89,6 +95,9 @@ const UserManagement = () => {
       if (response.ok) {
         const updatedUser = await response.json();
         setUsers(users.map(u => u.id === userId ? updatedUser : u));
+
+        setSuccessState({ id: userId, type: 'gst' });
+        setTimeout(() => setSuccessState({ id: null, type: null }), 2000);
       } else {
         alert("Failed to update GST");
       }
@@ -100,10 +109,12 @@ const UserManagement = () => {
     }
   };
 
-  const filteredUsers = users.filter(user => 
+  const filteredUsers = users.filter(user =>
     (user.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
     (user.phone || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (user.company || "").toLowerCase().includes(searchTerm.toLowerCase())
+    (user.company || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (user.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (user.gstNumber || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) return (
@@ -119,7 +130,7 @@ const UserManagement = () => {
         <header className="mgmt-header">
           <div className="header-info">
             <h1>Customer Discounts</h1>
-            <p>Manage special percentage-off discounts for specific B2B customers.</p>
+            <p>Manage special percentage-off discounts for specific customers.</p>
           </div>
           <div className="mgmt-stats">
             <div className="stat-card">
@@ -135,9 +146,9 @@ const UserManagement = () => {
         <div className="mgmt-toolbar">
           <div className="search-box">
             <Search size={18} />
-            <input 
-              type="text" 
-              placeholder="Search by name, phone or company..." 
+            <input
+              type="text"
+              placeholder="Search by name, phone or company..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -154,6 +165,7 @@ const UserManagement = () => {
                 <th>Customer Details</th>
                 <th>Company</th>
                 <th>Contact</th>
+                <th>Email</th>
                 <th>Registered</th>
                 <th>GST Number</th>
                 <th>Special Discount</th>
@@ -164,10 +176,10 @@ const UserManagement = () => {
                 <tr key={user.id}>
                   <td>
                     <div className="user-cell">
-                      <div className="user-avatar">{user.name.charAt(0)}</div>
+                      <div className="user-avatar">{user.name ? user.name.charAt(0).toUpperCase() : 'U'}</div>
                       <div className="user-info">
-                        <span className="user-name">{user.name}</span>
-                        <span className="user-id">ID: {user.id.slice(-6)}</span>
+                        <span className="user-name">{user.name || 'Unknown User'}</span>
+                        <span className="user-id">ID: {String(user.id || '').slice(-6)}</span>
                       </div>
                     </div>
                   </td>
@@ -180,7 +192,13 @@ const UserManagement = () => {
                   <td>
                     <div className="contact-cell">
                       <Phone size={14} />
-                      <span>{user.phone}</span>
+                      <span>{user.phone || 'N/A'}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="email-cell">
+                      <Mail size={14} />
+                      <span>{user.email || 'N/A'}</span>
                     </div>
                   </td>
                   <td>
@@ -190,29 +208,33 @@ const UserManagement = () => {
                     </div>
                   </td>
                   <td>
-                    <div className="gst-input-group">
-                       <input 
-                          type="text" 
-                          placeholder="Add GSTIN"
-                          className="mgmt-gst-input"
-                          defaultValue={user.gstNumber || ''}
-                          onBlur={(e) => {
-                            const val = e.target.value.trim();
-                            if (val !== (user.gstNumber || '')) {
-                              handleUpdateGst(user.id, val);
-                            }
-                          }}
-                          disabled={updatingId === user.id}
-                        />
+                    <div className="gst-input-group" style={{ position: 'relative' }}>
+                      <input
+                        type="text"
+                        placeholder="Add GSTIN"
+                        className={`mgmt-gst-input ${successState.id === user.id && successState.type === 'gst' ? 'input-success' : ''}`}
+                        defaultValue={user.gstNumber || ''}
+                        onBlur={(e) => {
+                          const val = e.target.value.trim();
+                          if (val !== (user.gstNumber || '')) {
+                            handleUpdateGst(user.id, val);
+                          }
+                        }}
+                        disabled={updatingId === user.id}
+                      />
+                      {successState.id === user.id && successState.type === 'gst' && (
+                        <CheckCircle2 size={16} className="mini-success-icon" style={{ position: 'absolute', right: '-25px', top: '50%', transform: 'translateY(-50%)' }} />
+                      )}
                     </div>
                   </td>
                   <td>
                     <div className="discount-input-group">
                       <div className="input-wrapper">
-                        <input 
-                          type="number" 
-                          min="0" 
+                        <input
+                          type="number"
+                          min="0"
                           max="100"
+                          className={successState.id === user.id && successState.type === 'discount' ? 'input-success' : ''}
                           defaultValue={user.specialDiscount || 0}
                           onBlur={(e) => {
                             const val = Number(e.target.value);
@@ -225,13 +247,16 @@ const UserManagement = () => {
                         <Percent size={14} className="percent-icon" />
                       </div>
                       {updatingId === user.id && <div className="mini-loader"></div>}
+                      {successState.id === user.id && successState.type === 'discount' && (
+                        <CheckCircle2 size={18} className="mini-success-icon" />
+                      )}
                     </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          
+
           {filteredUsers.length === 0 && !loading && (
             <div className="empty-state">
               <Users size={48} />

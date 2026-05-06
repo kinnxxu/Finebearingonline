@@ -1,3 +1,4 @@
+import API_BASE_URL from '../../config';
 import React, { useState, useEffect } from 'react';
 import { Search, Edit2, Save, X } from 'lucide-react';
 import './employee-panel.css';
@@ -18,7 +19,7 @@ const EmployeePanel = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/admin/orders', {
+      const response = await fetch(`${API_BASE_URL}/api/admin/orders`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -36,7 +37,7 @@ const EmployeePanel = () => {
 
   const handleUpdateStatus = async (orderId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/orders/${orderId}/status`, {
+      const response = await fetch(`http://127.0.0.1:5000/api/admin/orders/${orderId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

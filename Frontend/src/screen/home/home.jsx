@@ -1,3 +1,4 @@
+import API_BASE_URL from '../../config';
 import React, { useState, useEffect } from 'react';
 import HeroSection from '../../components/home/HeroSection';
 import AuthorizedBrandsSection from '../../components/home/AuthorizedBrandsSection';
@@ -17,7 +18,7 @@ const Home = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/products');
+        const response = await fetch(`${API_BASE_URL}/api/products`);
         if (!response.ok) throw new Error('Failed to fetch products');
         const data = await response.json();
         

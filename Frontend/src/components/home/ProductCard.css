@@ -16,7 +16,7 @@
   transform: translateY(-8px);
   box-shadow: 0 15px 40px rgba(234, 179, 8, 0.25);
   /* Bright amber glow */
-  border-color: #ca8a04;
+  border-color: #e2e8f0;
   /* Official theme deep orange/gold */
 }
 
@@ -200,7 +200,7 @@
   background: transparent;
   cursor: pointer;
   font-weight: 800;
-  color: #ca8a04;
+  color: #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -283,15 +283,31 @@
 
 /* --- Required Auth Shake --- */
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-6px); }
-  40% { transform: translateX(6px); }
-  60% { transform: translateX(-6px); }
-  80% { transform: translateX(6px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(-6px);
+  }
+
+  40% {
+    transform: translateX(6px);
+  }
+
+  60% {
+    transform: translateX(-6px);
+  }
+
+  80% {
+    transform: translateX(6px);
+  }
 }
 
 .shake-animation {
-  animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+  animation: shake 0.4s cubic-bezier(.36, .07, .19, .97) both;
   border-color: #ef4444 !important;
   box-shadow: 0 0 20px rgba(239, 68, 68, 0.25) !important;
 }
